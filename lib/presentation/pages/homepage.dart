@@ -19,7 +19,7 @@ class _CountryScreenState extends State<CountryScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      BlocProvider.of<CountryBloc>(context).add(FetchCountries());
+      BlocProvider.of<CountryBloc>(context).add( FetchCountries());
     });
   }
 

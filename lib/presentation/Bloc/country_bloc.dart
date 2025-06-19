@@ -43,27 +43,37 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
     );
   }
 
-  void _onSearchCountries(SearchCountries event, Emitter<CountryState> emit) {
-    if (state is CountryLoaded) {
-      final currentState = state as CountryLoaded;
-      final query = event.query.toLowerCase();
+  Future<void> _onSearchCountries(
+      SearchCountries event, Emitter<CountryState> emit) async {
+    final query = event.query.trim();
 
-      final filtered = query.isEmpty
-          ? currentState.countries
-          : currentState.countries
-              .where((c) => c.name.toLowerCase().contains(query))
-              .toList();
-
-      if (filtered.isEmpty) {
-        emit(CountryEmptyResult());
-      } else {
-        emit(CountryLoaded(
-          countries: currentState.countries,
-          filteredCountries: filtered,
-          favoriteCountryNames: _favorites,
-        ));
-      }
+    if (query.isEmpty) {
+      // If query is empty, show all countries
+      emit(CountryLoaded(
+        countries: _allCountries,
+        filteredCountries: _allCountries,
+        favoriteCountryNames: _favorites,
+      ));
+      return;
     }
+
+    emit(CountryLoading());
+    final failureOrCountries = await searchCountries.execute(query);
+
+    failureOrCountries.fold(
+      (failure) => emit(CountryError(_mapFailureToMessage(failure))),
+      (countries) {
+        if (countries.isEmpty) {
+          emit(CountryEmptyResult());
+        } else {
+          emit(CountryLoaded(
+            countries: _allCountries,
+            filteredCountries: countries,
+            favoriteCountryNames: _favorites,
+          ));
+        }
+      },
+    );
   }
 
   Future<void> _onToggleFavoriteCountry(

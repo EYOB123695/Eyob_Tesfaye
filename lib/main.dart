@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
             searchCountries: searchCountriesUseCase,
             addToFavorites: addToFavoritesUseCase,
             removeFromFavorites: removeFromFavoritesUseCase,
-          )..add( FetchCountries()),
+          )..add(FetchCountries()),
         ),
       ],
       child: MaterialApp(
